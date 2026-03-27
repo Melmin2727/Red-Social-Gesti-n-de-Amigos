@@ -3,33 +3,96 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Red Social - Panel de Gestión</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ConnectSphere - Red Social</title>
     <!-- Bootstrap 5 CSS + Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 
 <body>
-    <div class="container">
-        <h1>Red Social - Gestión de Amigos</h1>
+    <div class="container py-4">
+        <!-- HEADER ÉPICO -->
+        <div class="card full-width-card mb-5 shadow-lg border-0 overflow-hidden position-relative">
+            <!-- Fondo animado -->
+            <div class="position-absolute top-0 start-0 w-100 h-100"
+                style="background: linear-gradient(135deg, rgba(59,130,246,0.1) 0%, rgba(34,197,94,0.1) 50%, rgba(139,92,246,0.1) 100%); z-index: 0;">
+            </div>
 
-        <!-- Mensaje general -->
-        <div th:if="${mensaje}" class="alert alert-success border-0 shadow-sm">
+            <!-- Partículas flotantes -->
+            <div class="position-absolute top-10 start-10" style="z-index: 1;">
+                <i class="bi bi-people-fill fs-1 text-primary opacity-20 animate-float"></i>
+            </div>
+            <div class="position-absolute bottom-25 end-10" style="z-index: 1;">
+                <i class="bi bi-heart-fill fs-2 text-success opacity-15 animate-float-slow"></i>
+            </div>
+
+            <div class="card-body p-5 position-relative" style="z-index: 2;">
+                <div class="row align-items-center g-4">
+                    <!-- Logo + Título Principal -->
+                    <div class="col-lg-8">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="me-4 p-3 rounded-4 shadow-lg"
+                                style="background: linear-gradient(135deg, var(--primary), var(--primary-dark));">
+                                <i class="bi bi-globe2 fs-1 text-white"></i>
+                            </div>
+                            <div>
+                                <h1 class="display-4 fw-bold mb-1 lh-1"
+                                    style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #22c55e 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                                    Connect<span class="text-primary fw-bolder">Sphere</span>
+                                </h1>
+                                <div class="hstack gap-2 mb-2">
+                                    <span
+                                        class="badge bg-primary-subtle text-primary px-3 py-2 fs-6 fw-semibold border border-primary-subtle">
+                                        <i class="bi bi-people-fill me-1"></i>Red Social
+                                    </span>
+                                    <span
+                                        class="badge bg-success-subtle text-success px-3 py-2 fs-6 fw-semibold border border-success-subtle">
+                                        <i class="bi bi-gear-fill me-1"></i>Gestión Pro
+                                    </span>
+                                </div>
+                                <p class="lead text-muted fw-medium mb-0 animate-fade-in">
+                                    Plataforma profesional para gestión de amigos y Broders
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stats + Contactos -->
+                    <div class="col-lg-4 text-lg-end">
+                        <div class="friends-pill display-6 fw-bold mx-auto mb-2 p-4 shadow-lg"
+                            style="background: linear-gradient(135deg, var(--primary), var(--primary-dark)); min-width: 180px;">
+                            <i class="bi bi-people fs-4 me-3"></i>
+                            <span th:text="${usuarios?.size()} ?: 0">0</span>
+                            <small class="d-block fs-6 fw-normal mt-1 opacity-90">Contactos</small>
+                        </div>
+                        <div class="text-center">
+                            <small class="text-muted fw-medium">¡Bienvenido al panel de control!</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mensaje general (SIN CAMBIOS) -->
+        <div th:if="${mensaje}" class="alert alert-success border-0 shadow-sm mb-4">
             <i class="bi bi-check-circle-fill me-2"></i>
             <span th:text="${mensaje}"></span>
         </div>
 
-        <!-- ESTADO DEL USUARIO - SEGURO -->
-        <div th:if="${usuarioSeleccionado != null}" class="alert alert-info estado-usuario">
+        <!-- ESTADO DEL USUARIO (SIN CAMBIOS) -->
+        <div th:if="${usuarioSeleccionado != null}" class="alert alert-info estado-usuario mb-4">
             <p>Estás gestionando a: <strong th:text="${usuarioSeleccionado.nombre}">Desconocido</strong></p>
             <p>Amigos actuales:
                 <span th:text="${usuarioSeleccionado.numeroAmigos} ?: 0">0</span>
             </p>
         </div>
 
-        <!-- FORMULARIO DE REGISTRO - FULL WIDTH -->
-        <div class="card full-width-card">
+        <!-- FORMULARIO DE REGISTRO (SIN CAMBIOS) -->
+        <div class="card full-width-card mb-5">
             <h3>Registrar Nuevo Usuario</h3>
             <form th:action="@{/crearUsuario}" method="post">
                 <input type="text" name="nombre" placeholder="Nombre del nuevo usuario" required>
@@ -37,9 +100,9 @@
             </form>
         </div>
 
-        <!-- ⭐ LAYOUT PRINCIPAL: Lista Izquierda + CRUDs Derecha ⭐ -->
+        <!-- LAYOUT PRINCIPAL (SIN CAMBIOS) -->
         <div class="main-layout">
-            <!-- ⭐ LISTA COMPACTA EN TABLA ULTRA-SEGURO (IZQUIERDA - STICKY) ⭐ -->
+            <!-- LISTA CONTACTOS (SIN CAMBIOS) -->
             <div class="card list-card">
                 <div class="card-header bg-success text-white">
                     <h5 class="mb-0"><i class="bi bi-people-fill me-2"></i>
@@ -58,7 +121,6 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- ⭐ VACÍO - NUNCA FALLA ⭐ -->
                                 <tr th:if="${usuarios == null or #lists.isEmpty(usuarios)}">
                                     <td colspan="3" class="text-center py-5 text-muted">
                                         <i class="bi bi-people fs-1 mb-3 d-block opacity-50"></i>
@@ -67,9 +129,7 @@
                                     </td>
                                 </tr>
 
-                                <!-- ⭐ LOOP PRINCIPAL CON PROTECCIÓN EXTRA ⭐ -->
                                 <th:block th:each="u : ${usuarios}" th:if="${u != null}">
-                                    <!-- FILA PRINCIPAL -->
                                     <tr>
                                         <td class="align-middle ps-3 fw-bold" th:text="${u.nombre} ?: 'Sin nombre'">
                                             Nombre</td>
@@ -79,9 +139,8 @@
                                                 th:text="${u.numeroAmigos} ?: 0">0</span>
                                         </td>
                                         <td class="text-end pe-3 align-middle">
-                                            <!-- ⭐ BOTÓN ULTRA-SEGURO ⭐ -->
-                                            <button class="btn btn-sm btn-outline-success px-3" type="button"
-                                                data-bs-toggle="collapse"
+                                            <button class="btn btn-sm btn-outline-success px-3 user-view-btn"
+                                                type="button" data-bs-toggle="collapse"
                                                 th:data-bs-target="'#collapseAmigos_' + ${u.hashCode()}"
                                                 th:id="'btnAmigos_' + ${u.hashCode()}">
                                                 <i class="bi bi-eye"></i> Ver
@@ -89,13 +148,11 @@
                                         </td>
                                     </tr>
 
-                                    <!-- ⭐ ACORDEÓN ULTRA-SEGURO - PROTECCIÓN TOTAL ⭐ -->
                                     <tr class="collapse" th:id="'collapseAmigos_' + ${u.hashCode()}"
                                         th:attr="aria-labelledby='btnAmigos_' + ${u.hashCode()}">
                                         <td colspan="3" class="p-0">
                                             <div class="bg-light border-start border-success border-3">
                                                 <div class="p-3">
-                                                    <!-- HEADER SEGURO -->
                                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                                         <h6 class="mb-0 fw-bold text-success">
                                                             <i class="bi bi-heart-fill me-2"></i>
@@ -106,10 +163,8 @@
                                                             th:text="${u.numeroAmigos} + ' amigos' ?: '0 amigos'"></small>
                                                     </div>
 
-                                                    <!-- CONTENIDO ULTRA-SEGURO -->
                                                     <div style="max-height: 150px; overflow-y: auto;"
                                                         class="border rounded shadow-sm bg-white">
-                                                        <!-- ⭐ CASO VACÍO ⭐ -->
                                                         <div th:if="${u.amigos == null or #lists.isEmpty(u.amigos)}"
                                                             class="text-center py-4 text-muted">
                                                             <i
@@ -122,7 +177,6 @@
                                                             </div>
                                                         </div>
 
-                                                        <!-- ⭐ CASO CON AMIGOS - PROTECCIÓN TOTAL ⭐ -->
                                                         <div th:if="${u.amigos != null and not #lists.isEmpty(u.amigos)}"
                                                             class="list-group list-group-flush">
                                                             <div th:each="amigo : ${u.amigos}"
@@ -134,12 +188,6 @@
                                                                     <span class="fw-medium"
                                                                         th:text="${amigo.trim()}">Nombre amigo</span>
                                                                 </div>
-                                                            </div>
-                                                            <!-- Mensaje si todos los amigos fueron filtrados -->
-                                                            <div th:if="${u.amigos != null and #lists.isEmpty(u.amigos)}"
-                                                                class="list-group-item text-center text-muted py-3">
-                                                                <small>👻 Todos los amigos fueron filtrados
-                                                                    (vacíos/null)</small>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -154,7 +202,7 @@
                 </div>
             </div>
 
-            <!-- CRUDs SIN CAMBIOS -->
+            <!-- CRUDs (SIN CAMBIOS) -->
             <div class="actions-container">
                 <div class="card">
                     <h3>Agregar Amigo</h3>
@@ -199,7 +247,7 @@
         </div>
     </div>
 
-    <!-- Datalists ULTRA-SEGUROS -->
+    <!-- Datalists ULTRA-SEGUROS (SIN CAMBIOS) -->
     <datalist id="listaUsuarios" th:if="${usuarios != null}">
         <option th:each="u : ${usuarios}" th:if="${u != null}" th:value="${u.nombre}"></option>
     </datalist>
@@ -210,6 +258,57 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- ANIMACIONES CSS (EMBEDDED) -->
+    <style>
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        @keyframes float-slow {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .animate-float-slow {
+            animation: float-slow 8s ease-in-out infinite;
+        }
+
+        .animate-fade-in {
+            animation: fadeInUp 1s ease-out;
+        }
+    </style>
 </body>
 
 </html>
