@@ -6,17 +6,21 @@ import java.util.List;
 
 /**
  * Clase que representa a un usuario en la red social.
+ * ✅ 100% Null-safe y lista siempre inicializada
  */
 public class Usuario {
     private String nombre;
-    private List<String> amigos;
+    private List<String> amigos = new ArrayList<>(); // ✅ SIEMPRE inicializada
 
     /**
      * Constructor para crear un usuario con un nombre.
      */
     public Usuario(String nombre) {
         this.nombre = nombre != null ? nombre.trim() : "";
-        this.amigos = new ArrayList<>();
+        // ✅ Lista ya inicializada arriba, doble protección
+        if (this.amigos == null) {
+            this.amigos = new ArrayList<>();
+        }
     }
 
     /**
@@ -46,7 +50,7 @@ public class Usuario {
      * Obtiene la lista de amigos en común con otro usuario.
      */
     public List<String> amigosEnComun(Usuario otro) {
-        if (otro == null)
+        if (otro == null || otro.amigos == null)
             return new ArrayList<>();
 
         List<String> comunes = new ArrayList<>();
@@ -59,10 +63,10 @@ public class Usuario {
     }
 
     /**
-     * ✅ MEJORADO: Sugiere amigos (amigos de amigos)
+     * Sugiere amigos basados en amigos de amigos.
      */
     public List<String> sugerirAmigos(List<Usuario> todosLosUsuarios) {
-        if (todosLosUsuarios == null)
+        if (todosLosUsuarios == null || todosLosUsuarios.isEmpty())
             return new ArrayList<>();
 
         List<String> sugerencias = new ArrayList<>();
@@ -83,16 +87,16 @@ public class Usuario {
     }
 
     /**
-     * Muestra la red de amigos (para depuración).
+     * Muestra la red de amigos (debug).
      */
     public void mostrarRed() {
-        System.out.println("👤 Usuario: " + nombre);
-        System.out.println("❤️ Amigos (" + amigos.size() + "): " + amigos);
+        System.out.println("👤 " + nombre + " (" + amigos.size() + " amigos): " + amigos);
     }
 
-    // Getters y Setters
+    // ========== GETTERS ULTRA-SEGUROS ==========
+
     public String getNombre() {
-        return nombre;
+        return nombre != null ? nombre : "";
     }
 
     public void setNombre(String nombre) {
@@ -100,31 +104,32 @@ public class Usuario {
     }
 
     /**
-     * ✅ Getter ESPECIAL para la vista - Devuelve lista INMUTABLE
-     * Compatible con ${u.getAmigos().size()} y ${u.amigos} en Thymeleaf
+     * ✅ PARA VISTAS HTML - SIEMPRE devuelve lista válida
      */
     public List<String> getAmigos() {
-        return Collections.unmodifiableList(amigos != null ? amigos : new ArrayList<>());
+        return amigos != null ? Collections.unmodifiableList(amigos) : Collections.emptyList();
     }
 
     /**
-     * ✅ Getter directo para badges en HTML
+     * ✅ PARA BADGES - SIEMPRE número válido
      */
     public int getNumeroAmigos() {
         return amigos != null ? amigos.size() : 0;
     }
 
     /**
-     * ✅ Para compatibilidad con vistas antiguas
+     * ✅ Para iterar en Thymeleaf (copia editable)
      */
     public List<String> getAmigosLista() {
-        return new ArrayList<>(amigos != null ? amigos : new ArrayList<>());
+        return new ArrayList<>(getAmigos());
     }
 
-    // Setter privado (para uso interno del controlador)
+    // Setter con protección
     public void setAmigos(List<String> amigos) {
-        this.amigos = amigos != null ? new ArrayList<>(amigos) : new ArrayList<>();
+        this.amigos = (amigos != null) ? new ArrayList<>(amigos) : new ArrayList<>();
     }
+
+    // ========== OVERRIDES PARA ESTABILIDAD ==========
 
     @Override
     public boolean equals(Object o) {
@@ -133,16 +138,16 @@ public class Usuario {
         if (o == null || getClass() != o.getClass())
             return false;
         Usuario usuario = (Usuario) o;
-        return nombre.equalsIgnoreCase(usuario.nombre);
+        return getNombre().equalsIgnoreCase(usuario.getNombre());
     }
 
     @Override
     public int hashCode() {
-        return nombre.toLowerCase().hashCode();
+        return getNombre().toLowerCase().hashCode();
     }
 
     @Override
     public String toString() {
-        return "Usuario{" + "nombre='" + nombre + '\'' + ", amigos=" + amigos.size() + '}';
+        return String.format("Usuario{nombre='%s', amigos=%d}", nombre, getNumeroAmigos());
     }
 }

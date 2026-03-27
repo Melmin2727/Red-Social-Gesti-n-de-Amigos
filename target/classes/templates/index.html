@@ -6,8 +6,6 @@
     <title>Red Social - Panel de Gestión</title>
     <!-- Bootstrap 5 CSS + Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- ✅ Font Awesome 6 CDN AÑADIDO -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
@@ -22,26 +20,12 @@
             <span th:text="${mensaje}"></span>
         </div>
 
-        <!-- ⭐ SELECCIÓN DE USUARIO ACTIVO ⭐ -->
-        <div th:if="${usuarioSesion != null}" class="alert alert-primary mb-4">
-            <div class="d-flex align-items-center">
-                <!-- ✅ ICONO DE USUARIO MEJORADO CON FONT AWESOME -->
-                <i class="fas fa-user-circle fs-4 me-3 text-primary"></i>
-                <div>
-                    <strong>Usuario activo:</strong> <span th:text="${usuarioSesion.nombre}"></span>
-                    (<span th:text="${usuarioSesion.numeroAmigos}"></span> amigos)
-                </div>
-                <a th:href="@{'/seleccionar-usuario(nombreUsuario=' + ${usuarioSesion.nombre})}"
-                    class="btn btn-sm btn-outline-primary ms-auto">
-                    Cambiar
-                </a>
-            </div>
-        </div>
-
         <!-- ESTADO DEL USUARIO - SEGURO -->
         <div th:if="${usuarioSeleccionado != null}" class="alert alert-info estado-usuario">
             <p>Estás gestionando a: <strong th:text="${usuarioSeleccionado.nombre}">Desconocido</strong></p>
-            <p>Amigos actuales: <span th:text="${usuarioSeleccionado.numeroAmigos} ?: 0">0</span></p>
+            <p>Amigos actuales:
+                <span th:text="${usuarioSeleccionado.numeroAmigos} ?: 0">0</span>
+            </p>
         </div>
 
         <!-- FORMULARIO DE REGISTRO - FULL WIDTH -->
@@ -53,12 +37,15 @@
             </form>
         </div>
 
-        <!-- ⭐ LAYOUT PRINCIPAL: Lista Completa (SIN SECCIÓN SUGERENCIAS) ⭐ -->
+        <!-- ⭐ LAYOUT PRINCIPAL: Lista Izquierda + CRUDs Derecha ⭐ -->
         <div class="main-layout">
-            <!-- ⭐ LISTA INTELIGENTE CON DESGLOSE DE AMIGOS POR USUARIO ⭐ -->
-            <div class="card list-card w-100">
-                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="bi bi-people-fill me-2"></i>Contactos</h5>
+            <!-- ⭐ LISTA COMPACTA EN TABLA ULTRA-SEGURO (IZQUIERDA - STICKY) ⭐ -->
+            <div class="card list-card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-people-fill me-2"></i>
+                        Contactos
+                        <span class="badge bg-light text-success ms-2" th:text="${usuarios?.size()} ?: 0">0</span>
+                    </h5>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive" style="max-height: 70vh;">
@@ -67,11 +54,11 @@
                                 <tr>
                                     <th class="ps-3">Contacto</th>
                                     <th class="text-center" style="width: 100px;">Amigos</th>
-                                    <th class="text-end pe-3" style="width: 160px;">Estado / Acción</th>
+                                    <th class="text-end pe-3" style="width: 120px;">Acción</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- VACÍO -->
+                                <!-- ⭐ VACÍO - NUNCA FALLA ⭐ -->
                                 <tr th:if="${usuarios == null or #lists.isEmpty(usuarios)}">
                                     <td colspan="3" class="text-center py-5 text-muted">
                                         <i class="bi bi-people fs-1 mb-3 d-block opacity-50"></i>
@@ -80,8 +67,9 @@
                                     </td>
                                 </tr>
 
-                                <!-- ⭐ LOOP CON DESGLOSE DE AMIGOS MEJORADO ⭐ -->
+                                <!-- ⭐ LOOP PRINCIPAL CON PROTECCIÓN EXTRA ⭐ -->
                                 <th:block th:each="u : ${usuarios}" th:if="${u != null}">
+                                    <!-- FILA PRINCIPAL -->
                                     <tr>
                                         <td class="align-middle ps-3 fw-bold" th:text="${u.nombre} ?: 'Sin nombre'">
                                             Nombre</td>
@@ -91,76 +79,67 @@
                                                 th:text="${u.numeroAmigos} ?: 0">0</span>
                                         </td>
                                         <td class="text-end pe-3 align-middle">
-                                            <!-- ⭐ BOTÓN "YA ES AMIGO" ⭐ -->
-                                            <span
-                                                th:if="${usuarioSesion != null and usuarioSesion.amigos != null and usuarioSesion.amigos.contains(u.nombre)}"
-                                                class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 fs-6 fw-semibold">
-                                                <i class="bi bi-check-circle-fill me-1"></i>
-                                                Ya es amigo
-                                            </span>
-
-                                            <!-- ⭐ BOTÓN "AGREGAR AMIGO" ⭐ -->
-                                            <form
-                                                th:unless="${usuarioSesion != null and usuarioSesion.amigos != null and usuarioSesion.amigos.contains(u.nombre)}"
-                                                th:action="@{/agregarAmigo}" method="post" class="d-inline">
-                                                <input type="hidden" name="usuario"
-                                                    th:value="${usuarioSesion?.nombre ?: ''}">
-                                                <input type="hidden" name="amigo" th:value="${u.nombre}">
-                                                <button type="submit" class="btn btn-sm btn-outline-success px-3">
-                                                    <i class="bi bi-person-plus"></i> Agregar
-                                                </button>
-                                            </form>
-
-                                            <!-- ⭐ INFO si no hay usuarioSesion ⭐ -->
-                                            <span th:if="${usuarioSesion == null}"
-                                                class="badge bg-secondary px-3 py-2 fs-6">
-                                                <i class="bi bi-info-circle"></i> Selecciona usuario
-                                            </span>
-
-                                            <!-- ✅ BOTÓN VER AMIGOS MEJORADO CON ID ÚNICO -->
-                                            <button class="btn btn-sm btn-outline-primary ms-1" type="button"
-                                                data-bs-toggle="collapse" th:data-bs-target="'#amigos-' + ${u.id}"
-                                                th:id="'btnAmigos-' + ${u.id}">
-                                                <i class="fas fa-users me-1"></i>Ver amigos
+                                            <!-- ⭐ BOTÓN ULTRA-SEGURO ⭐ -->
+                                            <button class="btn btn-sm btn-outline-success px-3" type="button"
+                                                data-bs-toggle="collapse"
+                                                th:data-bs-target="'#collapseAmigos_' + ${u.hashCode()}"
+                                                th:id="'btnAmigos_' + ${u.hashCode()}">
+                                                <i class="bi bi-eye"></i> Ver
                                             </button>
                                         </td>
                                     </tr>
 
-                                    <!-- ✅ DESGLOSE DE AMIGOS COLAPSABLE CON ID ÚNICO -->
-                                    <tr class="collapse" th:id="'amigos-' + ${u.id}">
+                                    <!-- ⭐ ACORDEÓN ULTRA-SEGURO - PROTECCIÓN TOTAL ⭐ -->
+                                    <tr class="collapse" th:id="'collapseAmigos_' + ${u.hashCode()}"
+                                        th:attr="aria-labelledby='btnAmigos_' + ${u.hashCode()}">
                                         <td colspan="3" class="p-0">
                                             <div class="bg-light border-start border-success border-3">
                                                 <div class="p-3">
+                                                    <!-- HEADER SEGURO -->
                                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                                         <h6 class="mb-0 fw-bold text-success">
-                                                            <i class="fas fa-heart me-2"></i>
+                                                            <i class="bi bi-heart-fill me-2"></i>
                                                             Amigos de <span
                                                                 th:text="${u.nombre} ?: 'Desconocido'"></span>
                                                         </h6>
                                                         <small class="text-muted"
                                                             th:text="${u.numeroAmigos} + ' amigos' ?: '0 amigos'"></small>
                                                     </div>
+
+                                                    <!-- CONTENIDO ULTRA-SEGURO -->
                                                     <div style="max-height: 150px; overflow-y: auto;"
                                                         class="border rounded shadow-sm bg-white">
+                                                        <!-- ⭐ CASO VACÍO ⭐ -->
                                                         <div th:if="${u.amigos == null or #lists.isEmpty(u.amigos)}"
                                                             class="text-center py-4 text-muted">
                                                             <i
                                                                 class="bi bi-emoji-frown fs-1 mb-2 d-block opacity-75"></i>
                                                             <small class="fw-medium">Sin amigos registrados aún
                                                                 😔</small>
+                                                            <div class="mt-2">
+                                                                <small class="text-muted">Usa "Agregar Amigo" para
+                                                                    empezar</small>
+                                                            </div>
                                                         </div>
+
+                                                        <!-- ⭐ CASO CON AMIGOS - PROTECCIÓN TOTAL ⭐ -->
                                                         <div th:if="${u.amigos != null and not #lists.isEmpty(u.amigos)}"
                                                             class="list-group list-group-flush">
                                                             <div th:each="amigo : ${u.amigos}"
                                                                 th:if="${amigo != null and amigo.trim() != ''}"
                                                                 class="list-group-item px-3 py-2 border-end-0 border-start-0">
                                                                 <div class="d-flex align-items-center">
-                                                                    <!-- ✅ ICONO DE USUARIO CON FONT AWESOME -->
                                                                     <i
-                                                                        class="fas fa-user-circle text-success me-2 fs-5"></i>
+                                                                        class="bi bi-person-circle text-success me-2 fs-5"></i>
                                                                     <span class="fw-medium"
                                                                         th:text="${amigo.trim()}">Nombre amigo</span>
                                                                 </div>
+                                                            </div>
+                                                            <!-- Mensaje si todos los amigos fueron filtrados -->
+                                                            <div th:if="${u.amigos != null and #lists.isEmpty(u.amigos)}"
+                                                                class="list-group-item text-center text-muted py-3">
+                                                                <small>👻 Todos los amigos fueron filtrados
+                                                                    (vacíos/null)</small>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -175,54 +154,52 @@
                 </div>
             </div>
 
-            <!-- ⭐ CRUDs RESTANTES - OCUPAN TODO EL ANCHO (SIN SUGERENCIAS) ⭐ -->
-            <div class="actions-container w-100 mt-4">
-                <div class="row g-4">
-                    <div class="col-md-6">
-                        <div class="card">
-                            <h3>Agregar Amigo (Manual)</h3>
-                            <form th:action="@{/agregarAmigo}" method="post">
-                                <input type="text" name="usuario" placeholder="¿Quién agrega?" list="listaUsuarios"
-                                    required>
-                                <input type="text" name="amigo" placeholder="Nombre del amigo"
-                                    list="listaReferenciaAmigos" required>
-                                <button type="submit">Agregar</button>
-                            </form>
-                        </div>
+            <!-- CRUDs SIN CAMBIOS -->
+            <div class="actions-container">
+                <div class="card">
+                    <h3>Agregar Amigo</h3>
+                    <form th:action="@{/agregarAmigo}" method="post">
+                        <input type="text" name="usuario" placeholder="¿Quién agrega?" list="listaUsuarios" required>
+                        <input type="text" name="amigo" placeholder="Nombre del amigo" list="listaReferenciaAmigos"
+                            required>
+                        <button type="submit">Agregar</button>
+                    </form>
+                </div>
+                <div class="card">
+                    <h3>Eliminar Amigo</h3>
+                    <form th:action="@{/eliminarAmigo}" method="post">
+                        <input type="text" name="usuario" placeholder="¿Quién elimina?" list="listaUsuarios" required>
+                        <input type="text" name="amigo" placeholder="Nombre del amigo a borrar"
+                            list="listaReferenciaAmigos" required>
+                        <button type="submit" class="btn-delete">Eliminar</button>
+                    </form>
+                </div>
+                <div class="card">
+                    <h3>Amigos en Común</h3>
+                    <form th:action="@{/amigosEnComun}" method="post">
+                        <input type="text" name="usuario1" placeholder="Usuario 1" list="listaUsuarios" required>
+                        <input type="text" name="usuario2" placeholder="Usuario 2" list="listaUsuarios" required>
+                        <button type="submit">Ver Comunes</button>
+                    </form>
+                    <div th:if="${comunes != null}" class="result-box mt-3 p-3 rounded bg-success-subtle">
+                        <i class="bi bi-people-fill me-2 text-success"></i><span th:text="${comunes}"></span>
                     </div>
-                    <div class="col-md-6">
-                        <div class="card">
-                            <h3>Eliminar Amigo</h3>
-                            <form th:action="@{/eliminarAmigo}" method="post">
-                                <input type="text" name="usuario" placeholder="¿Quién elimina?" list="listaUsuarios"
-                                    required>
-                                <input type="text" name="amigo" placeholder="Nombre del amigo a borrar"
-                                    list="listaReferenciaAmigos" required>
-                                <button type="submit" class="btn-delete">Eliminar</button>
-                            </form>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card">
-                            <h3>Amigos en Común</h3>
-                            <form th:action="@{/amigosEnComun}" method="post">
-                                <input type="text" name="usuario1" placeholder="Usuario 1" list="listaUsuarios"
-                                    required>
-                                <input type="text" name="usuario2" placeholder="Usuario 2" list="listaUsuarios"
-                                    required>
-                                <button type="submit">Ver Comunes</button>
-                            </form>
-                            <div th:if="${comunes != null}" class="result-box mt-3 p-3 rounded bg-success-subtle">
-                                <i class="bi bi-people-fill me-2 text-success"></i><span th:text="${comunes}"></span>
-                            </div>
-                        </div>
+                </div>
+                <div class="card">
+                    <h3>Sugerencias</h3>
+                    <form th:action="@{/sugerencias}" method="post">
+                        <input type="text" name="usuario" placeholder="Tu nombre" list="listaUsuarios" required>
+                        <button type="submit">Ver Sugerencias</button>
+                    </form>
+                    <div th:if="${sugerencias != null}" class="result-box mt-3 p-3 rounded bg-warning-subtle">
+                        <i class="bi bi-lightbulb-fill me-2 text-warning"></i><span th:text="${sugerencias}"></span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Datalists -->
+    <!-- Datalists ULTRA-SEGUROS -->
     <datalist id="listaUsuarios" th:if="${usuarios != null}">
         <option th:each="u : ${usuarios}" th:if="${u != null}" th:value="${u.nombre}"></option>
     </datalist>
