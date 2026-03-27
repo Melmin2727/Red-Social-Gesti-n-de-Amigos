@@ -4,6 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <title>Red Social - Panel de Gestión</title>
+    <!-- Bootstrap 5 CSS + Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- ✅ Font Awesome 6 CDN AÑADIDO -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 
@@ -12,14 +17,31 @@
         <h1>Red Social - Gestión de Amigos</h1>
 
         <!-- Mensaje general -->
-        <div th:if="${mensaje}" class="alert">
-            <p th:text="${mensaje}"></p>
+        <div th:if="${mensaje}" class="alert alert-success border-0 shadow-sm">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <span th:text="${mensaje}"></span>
         </div>
 
-        <!-- ESTADO DEL USUARIO -->
-        <div th:if="${usuarioSeleccionado}" class="alert alert-info estado-usuario">
-            <p>Estás gestionando a: <strong th:text="${usuarioSeleccionado.nombre}"></strong></p>
-            <p>Amigos actuales: <span th:text="${usuarioSeleccionado.amigos}"></span></p>
+        <!-- ⭐ SELECCIÓN DE USUARIO ACTIVO ⭐ -->
+        <div th:if="${usuarioSesion != null}" class="alert alert-primary mb-4">
+            <div class="d-flex align-items-center">
+                <!-- ✅ ICONO DE USUARIO MEJORADO CON FONT AWESOME -->
+                <i class="fas fa-user-circle fs-4 me-3 text-primary"></i>
+                <div>
+                    <strong>Usuario activo:</strong> <span th:text="${usuarioSesion.nombre}"></span>
+                    (<span th:text="${usuarioSesion.numeroAmigos}"></span> amigos)
+                </div>
+                <a th:href="@{'/seleccionar-usuario(nombreUsuario=' + ${usuarioSesion.nombre})}"
+                    class="btn btn-sm btn-outline-primary ms-auto">
+                    Cambiar
+                </a>
+            </div>
+        </div>
+
+        <!-- ESTADO DEL USUARIO - SEGURO -->
+        <div th:if="${usuarioSeleccionado != null}" class="alert alert-info estado-usuario">
+            <p>Estás gestionando a: <strong th:text="${usuarioSeleccionado.nombre}">Desconocido</strong></p>
+            <p>Amigos actuales: <span th:text="${usuarioSeleccionado.numeroAmigos} ?: 0">0</span></p>
         </div>
 
         <!-- FORMULARIO DE REGISTRO - FULL WIDTH -->
@@ -31,82 +53,186 @@
             </form>
         </div>
 
-        <!-- ⭐ LAYOUT PRINCIPAL: Lista Izquierda + CRUDs Derecha ⭐ -->
+        <!-- ⭐ LAYOUT PRINCIPAL: Lista Completa (SIN SECCIÓN SUGERENCIAS) ⭐ -->
         <div class="main-layout">
-            <!-- LISTA DE USUARIOS (IZQUIERDA - STICKY) -->
-            <div class="card list-card">
-                <h3>Contactos</h3>
-                <div th:each="u : ${usuarios}" class="user-item">
-                    <span>
-                        <span class="user-icon">👤</span>
-                        <span class="user-badge" th:text="${u.nombre}"></span>
-                    </span>
-                    <span class="friends-pill" th:title="${u.amigos}">
-                        <span th:text="${u.getAmigos().size()}">0</span> amigos
-                    </span>
+            <!-- ⭐ LISTA INTELIGENTE CON DESGLOSE DE AMIGOS POR USUARIO ⭐ -->
+            <div class="card list-card w-100">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-people-fill me-2"></i>Contactos</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" style="max-height: 70vh;">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th class="ps-3">Contacto</th>
+                                    <th class="text-center" style="width: 100px;">Amigos</th>
+                                    <th class="text-end pe-3" style="width: 160px;">Estado / Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- VACÍO -->
+                                <tr th:if="${usuarios == null or #lists.isEmpty(usuarios)}">
+                                    <td colspan="3" class="text-center py-5 text-muted">
+                                        <i class="bi bi-people fs-1 mb-3 d-block opacity-50"></i>
+                                        <h5 class="text-muted mb-1">Sin contactos</h5>
+                                        <p class="mb-0 small">Registra tu primer usuario arriba 👆</p>
+                                    </td>
+                                </tr>
+
+                                <!-- ⭐ LOOP CON DESGLOSE DE AMIGOS MEJORADO ⭐ -->
+                                <th:block th:each="u : ${usuarios}" th:if="${u != null}">
+                                    <tr>
+                                        <td class="align-middle ps-3 fw-bold" th:text="${u.nombre} ?: 'Sin nombre'">
+                                            Nombre</td>
+                                        <td class="align-middle text-center">
+                                            <span
+                                                class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 fs-6"
+                                                th:text="${u.numeroAmigos} ?: 0">0</span>
+                                        </td>
+                                        <td class="text-end pe-3 align-middle">
+                                            <!-- ⭐ BOTÓN "YA ES AMIGO" ⭐ -->
+                                            <span
+                                                th:if="${usuarioSesion != null and usuarioSesion.amigos != null and usuarioSesion.amigos.contains(u.nombre)}"
+                                                class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 fs-6 fw-semibold">
+                                                <i class="bi bi-check-circle-fill me-1"></i>
+                                                Ya es amigo
+                                            </span>
+
+                                            <!-- ⭐ BOTÓN "AGREGAR AMIGO" ⭐ -->
+                                            <form
+                                                th:unless="${usuarioSesion != null and usuarioSesion.amigos != null and usuarioSesion.amigos.contains(u.nombre)}"
+                                                th:action="@{/agregarAmigo}" method="post" class="d-inline">
+                                                <input type="hidden" name="usuario"
+                                                    th:value="${usuarioSesion?.nombre ?: ''}">
+                                                <input type="hidden" name="amigo" th:value="${u.nombre}">
+                                                <button type="submit" class="btn btn-sm btn-outline-success px-3">
+                                                    <i class="bi bi-person-plus"></i> Agregar
+                                                </button>
+                                            </form>
+
+                                            <!-- ⭐ INFO si no hay usuarioSesion ⭐ -->
+                                            <span th:if="${usuarioSesion == null}"
+                                                class="badge bg-secondary px-3 py-2 fs-6">
+                                                <i class="bi bi-info-circle"></i> Selecciona usuario
+                                            </span>
+
+                                            <!-- ✅ BOTÓN VER AMIGOS MEJORADO CON ID ÚNICO -->
+                                            <button class="btn btn-sm btn-outline-primary ms-1" type="button"
+                                                data-bs-toggle="collapse" th:data-bs-target="'#amigos-' + ${u.id}"
+                                                th:id="'btnAmigos-' + ${u.id}">
+                                                <i class="fas fa-users me-1"></i>Ver amigos
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <!-- ✅ DESGLOSE DE AMIGOS COLAPSABLE CON ID ÚNICO -->
+                                    <tr class="collapse" th:id="'amigos-' + ${u.id}">
+                                        <td colspan="3" class="p-0">
+                                            <div class="bg-light border-start border-success border-3">
+                                                <div class="p-3">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                        <h6 class="mb-0 fw-bold text-success">
+                                                            <i class="fas fa-heart me-2"></i>
+                                                            Amigos de <span
+                                                                th:text="${u.nombre} ?: 'Desconocido'"></span>
+                                                        </h6>
+                                                        <small class="text-muted"
+                                                            th:text="${u.numeroAmigos} + ' amigos' ?: '0 amigos'"></small>
+                                                    </div>
+                                                    <div style="max-height: 150px; overflow-y: auto;"
+                                                        class="border rounded shadow-sm bg-white">
+                                                        <div th:if="${u.amigos == null or #lists.isEmpty(u.amigos)}"
+                                                            class="text-center py-4 text-muted">
+                                                            <i
+                                                                class="bi bi-emoji-frown fs-1 mb-2 d-block opacity-75"></i>
+                                                            <small class="fw-medium">Sin amigos registrados aún
+                                                                😔</small>
+                                                        </div>
+                                                        <div th:if="${u.amigos != null and not #lists.isEmpty(u.amigos)}"
+                                                            class="list-group list-group-flush">
+                                                            <div th:each="amigo : ${u.amigos}"
+                                                                th:if="${amigo != null and amigo.trim() != ''}"
+                                                                class="list-group-item px-3 py-2 border-end-0 border-start-0">
+                                                                <div class="d-flex align-items-center">
+                                                                    <!-- ✅ ICONO DE USUARIO CON FONT AWESOME -->
+                                                                    <i
+                                                                        class="fas fa-user-circle text-success me-2 fs-5"></i>
+                                                                    <span class="fw-medium"
+                                                                        th:text="${amigo.trim()}">Nombre amigo</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </th:block>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
-            <!-- CONTENEDOR DE CRUDs (DERECHA - GRID 2x2) -->
-            <div class="actions-container">
-                <!-- AGREGAR AMIGO -->
-                <div class="card">
-                    <h3>Agregar Amigo</h3>
-                    <form th:action="@{/agregarAmigo}" method="post">
-                        <input type="text" name="usuario" placeholder="¿Quién agrega?" list="listaUsuarios" required>
-                        <input type="text" name="amigo" placeholder="Nombre del amigo" list="listaReferenciaAmigos"
-                            required>
-                        <button type="submit">Agregar</button>
-                    </form>
-                </div>
-
-                <!-- ELIMINAR AMIGO -->
-                <div class="card">
-                    <h3>Eliminar Amigo</h3>
-                    <form th:action="@{/eliminarAmigo}" method="post">
-                        <input type="text" name="usuario" placeholder="¿Quién elimina?" list="listaUsuarios" required>
-                        <input type="text" name="amigo" placeholder="Nombre del amigo a borrar"
-                            list="listaReferenciaAmigos" required>
-                        <button type="submit" class="btn-delete">Eliminar</button>
-                    </form>
-                </div>
-
-                <!-- AMIGOS EN COMÚN -->
-                <div class="card">
-                    <h3>Amigos en Común</h3>
-                    <form th:action="@{/amigosEnComun}" method="post">
-                        <input type="text" name="usuario1" placeholder="Usuario 1" list="listaUsuarios" required>
-                        <input type="text" name="usuario2" placeholder="Usuario 2" list="listaUsuarios" required>
-                        <button type="submit">Ver Comunes</button>
-                    </form>
-                    <div th:if="${comunes}" class="result-box">
-                        <p th:text="${comunes}"></p>
+            <!-- ⭐ CRUDs RESTANTES - OCUPAN TODO EL ANCHO (SIN SUGERENCIAS) ⭐ -->
+            <div class="actions-container w-100 mt-4">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <h3>Agregar Amigo (Manual)</h3>
+                            <form th:action="@{/agregarAmigo}" method="post">
+                                <input type="text" name="usuario" placeholder="¿Quién agrega?" list="listaUsuarios"
+                                    required>
+                                <input type="text" name="amigo" placeholder="Nombre del amigo"
+                                    list="listaReferenciaAmigos" required>
+                                <button type="submit">Agregar</button>
+                            </form>
+                        </div>
                     </div>
-                </div>
-
-                <!-- SUGERENCIAS -->
-                <div class="card">
-                    <h3>Sugerencias</h3>
-                    <form th:action="@{/sugerencias}" method="post">
-                        <input type="text" name="usuario" placeholder="Tu nombre" list="listaUsuarios" required>
-                        <button type="submit">Ver Sugerencias</button>
-                    </form>
-                    <div th:if="${sugerencias}" class="result-box">
-                        <p th:text="${sugerencias}"></p>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <h3>Eliminar Amigo</h3>
+                            <form th:action="@{/eliminarAmigo}" method="post">
+                                <input type="text" name="usuario" placeholder="¿Quién elimina?" list="listaUsuarios"
+                                    required>
+                                <input type="text" name="amigo" placeholder="Nombre del amigo a borrar"
+                                    list="listaReferenciaAmigos" required>
+                                <button type="submit" class="btn-delete">Eliminar</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <h3>Amigos en Común</h3>
+                            <form th:action="@{/amigosEnComun}" method="post">
+                                <input type="text" name="usuario1" placeholder="Usuario 1" list="listaUsuarios"
+                                    required>
+                                <input type="text" name="usuario2" placeholder="Usuario 2" list="listaUsuarios"
+                                    required>
+                                <button type="submit">Ver Comunes</button>
+                            </form>
+                            <div th:if="${comunes != null}" class="result-box mt-3 p-3 rounded bg-success-subtle">
+                                <i class="bi bi-people-fill me-2 text-success"></i><span th:text="${comunes}"></span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- LISTAS DE SUGERENCIA (Fuera del container para mejor rendimiento) -->
-    <datalist id="listaUsuarios">
-        <option th:each="u : ${usuarios}" th:value="${u.nombre}"></option>
+    <!-- Datalists -->
+    <datalist id="listaUsuarios" th:if="${usuarios != null}">
+        <option th:each="u : ${usuarios}" th:if="${u != null}" th:value="${u.nombre}"></option>
+    </datalist>
+    <datalist id="listaReferenciaAmigos" th:if="${usuarios != null}">
+        <option th:each="u : ${usuarios}" th:if="${u != null}" th:value="${u.nombre}" th:label="'(Posible amigo)'">
+        </option>
     </datalist>
 
-    <datalist id="listaReferenciaAmigos">
-        <option th:each="u : ${usuarios}" th:value="${u.nombre}" th:label="'(Posible amigo)'"></option>
-    </datalist>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

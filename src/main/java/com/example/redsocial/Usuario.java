@@ -1,6 +1,7 @@
 package com.example.redsocial;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -12,45 +13,42 @@ public class Usuario {
 
     /**
      * Constructor para crear un usuario con un nombre.
-     * 
-     * @param nombre El nombre del usuario.
      */
     public Usuario(String nombre) {
-        this.nombre = nombre;
+        this.nombre = nombre != null ? nombre.trim() : "";
         this.amigos = new ArrayList<>();
     }
 
     /**
      * Agrega un amigo a la lista, sin duplicados y no a sí mismo.
-     * 
-     * @param nombreAmigo El nombre del amigo a agregar.
-     * @return true si se agregó, false si ya era amigo o es él mismo.
      */
     public boolean agregarAmigo(String nombreAmigo) {
-        if (nombreAmigo.equals(this.nombre) || amigos.contains(nombreAmigo)) {
+        if (nombreAmigo == null || nombreAmigo.trim().isEmpty())
+            return false;
+
+        String amigoLimpio = nombreAmigo.trim();
+        if (amigoLimpio.equalsIgnoreCase(this.nombre) || amigos.contains(amigoLimpio)) {
             return false;
         }
-        amigos.add(nombreAmigo);
-        return true;
+        return amigos.add(amigoLimpio);
     }
 
     /**
      * Elimina un amigo de la lista.
-     * 
-     * @param nombreAmigo El nombre del amigo a eliminar.
-     * @return true si se eliminó, false si no estaba en la lista.
      */
     public boolean eliminarAmigo(String nombreAmigo) {
-        return amigos.remove(nombreAmigo);
+        if (nombreAmigo == null)
+            return false;
+        return amigos.remove(nombreAmigo.trim());
     }
 
     /**
      * Obtiene la lista de amigos en común con otro usuario.
-     * 
-     * @param otro El otro usuario.
-     * @return Lista de amigos en común.
      */
     public List<String> amigosEnComun(Usuario otro) {
+        if (otro == null)
+            return new ArrayList<>();
+
         List<String> comunes = new ArrayList<>();
         for (String amigo : amigos) {
             if (otro.amigos.contains(amigo)) {
@@ -61,21 +59,20 @@ public class Usuario {
     }
 
     /**
-     * Sugiere amigos basados en amigos de amigos que no estén en la lista.
-     * Nota: Para esto, necesitamos acceso a otros usuarios. Este método asume que
-     * se pasa una lista de todos los usuarios.
-     * 
-     * @param todosLosUsuarios Lista de todos los usuarios en la red.
-     * @return Lista de sugerencias.
+     * ✅ MEJORADO: Sugiere amigos (amigos de amigos)
      */
     public List<String> sugerirAmigos(List<Usuario> todosLosUsuarios) {
+        if (todosLosUsuarios == null)
+            return new ArrayList<>();
+
         List<String> sugerencias = new ArrayList<>();
         for (String amigo : amigos) {
             for (Usuario usuario : todosLosUsuarios) {
-                if (usuario.nombre.equals(amigo)) {
+                if (usuario != null && usuario.nombre.equalsIgnoreCase(amigo)) {
                     for (String amigoDeAmigo : usuario.amigos) {
-                        if (!amigoDeAmigo.equals(this.nombre) && !amigos.contains(amigoDeAmigo)
-                                && !sugerencias.contains(amigoDeAmigo)) {
+                        if (!amigoDeAmigo.equalsIgnoreCase(this.nombre) &&
+                                !amigos.contains(amigoDeAmigo) &&
+                                !sugerencias.contains(amigoDeAmigo)) {
                             sugerencias.add(amigoDeAmigo);
                         }
                     }
@@ -89,16 +86,63 @@ public class Usuario {
      * Muestra la red de amigos (para depuración).
      */
     public void mostrarRed() {
-        System.out.println("Usuario: " + nombre);
-        System.out.println("Amigos: " + amigos);
+        System.out.println("👤 Usuario: " + nombre);
+        System.out.println("❤️ Amigos (" + amigos.size() + "): " + amigos);
     }
 
-    // Getters
+    // Getters y Setters
     public String getNombre() {
         return nombre;
     }
 
+    public void setNombre(String nombre) {
+        this.nombre = nombre != null ? nombre.trim() : "";
+    }
+
+    /**
+     * ✅ Getter ESPECIAL para la vista - Devuelve lista INMUTABLE
+     * Compatible con ${u.getAmigos().size()} y ${u.amigos} en Thymeleaf
+     */
     public List<String> getAmigos() {
-        return amigos;
+        return Collections.unmodifiableList(amigos != null ? amigos : new ArrayList<>());
+    }
+
+    /**
+     * ✅ Getter directo para badges en HTML
+     */
+    public int getNumeroAmigos() {
+        return amigos != null ? amigos.size() : 0;
+    }
+
+    /**
+     * ✅ Para compatibilidad con vistas antiguas
+     */
+    public List<String> getAmigosLista() {
+        return new ArrayList<>(amigos != null ? amigos : new ArrayList<>());
+    }
+
+    // Setter privado (para uso interno del controlador)
+    public void setAmigos(List<String> amigos) {
+        this.amigos = amigos != null ? new ArrayList<>(amigos) : new ArrayList<>();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        Usuario usuario = (Usuario) o;
+        return nombre.equalsIgnoreCase(usuario.nombre);
+    }
+
+    @Override
+    public int hashCode() {
+        return nombre.toLowerCase().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "Usuario{" + "nombre='" + nombre + '\'' + ", amigos=" + amigos.size() + '}';
     }
 }
