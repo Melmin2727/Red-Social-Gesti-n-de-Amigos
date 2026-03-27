@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Usuarios</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <h1>Lista de Usuarios</h1>
+    <ul>
+        <li th:each="usuario : ${usuarios}">
+            <strong th:text="${usuario.nombre}"></strong> - Amigos: <span th:text="${usuario.amigos}"></span>
+        </li>
+    </ul>
+    <a href="/">Volver</a>
+</body>
+</html>

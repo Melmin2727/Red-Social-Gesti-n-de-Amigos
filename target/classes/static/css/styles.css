@@ -1,0 +1,283 @@
+/* --- VARIABLES CSS MODERNAS --- */
+:root {
+    --bg: #f8fafc;
+    --card-bg: #ffffff;
+    --primary: #3b82f6;
+    /* Azul moderno */
+    --danger: #ef4444;
+    /* Rojo para eliminar */
+    --success: #22c55e;
+    /* Verde para crear */
+    --text: #1e293b;
+    --border: #e2e8f0;
+}
+
+/* --- ESTILOS GLOBALES --- */
+body {
+    background-color: var(--bg);
+    font-family: 'Inter', sans-serif;
+    color: var(--text);
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+h1 {
+    text-align: center;
+    color: var(--text);
+    font-weight: 700;
+    margin-bottom: 40px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+h2,
+h3 {
+    color: var(--text);
+    font-weight: 600;
+    margin-top: 0;
+}
+
+/* --- TARJETAS (Cards) Dashboard Style --- */
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* --- LAYOUT PRINCIPAL --- */
+.main-layout {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 25px;
+    align-items: start;
+}
+
+/* Lista sticky mejorada */
+.list-card {
+    position: sticky;
+    top: 20px;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.list-card::-webkit-scrollbar {
+    width: 6px;
+}
+
+.list-card::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+}
+
+/* --- ELEMENTOS DE LA LISTA --- */
+.user-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+    transition: background-color 0.2s;
+}
+
+.user-item:hover {
+    background-color: #f1f5f9;
+}
+
+.user-item:last-child {
+    border-bottom: none;
+}
+
+.user-badge {
+    font-weight: 600;
+    color: var(--text);
+    font-size: 1.1rem;
+}
+
+.user-icon {
+    margin-right: 10px;
+    font-size: 1.2rem;
+    filter: grayscale(1);
+}
+
+/* Píldora de amigos moderna */
+.friends-pill,
+.friends-count {
+    background: #eff6ff;
+    color: var(--primary);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: help;
+    min-width: 70px;
+    text-align: center;
+    transition: transform 0.2s;
+}
+
+.friends-pill:hover,
+.friends-count:hover {
+    transform: scale(1.05);
+}
+
+/* --- INPUTS MODERNOS --- */
+input[type="text"],
+input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fdfdfd;
+    color: var(--text);
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+}
+
+input[type="text"]:focus,
+input:focus {
+    background-color: #ffffff;
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* --- BOTONES MODERNOS --- */
+button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background: #0f172a;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: opacity 0.2s, transform 0.1s;
+}
+
+button:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.btn-delete {
+    background: var(--danger);
+}
+
+.btn-delete:hover {
+    background: #dc2626;
+}
+
+/* --- CONTAINERS DE ACCIONES --- */
+.actions-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+/* --- TARJETAS ESPECIALES --- */
+.full-width-card {
+    grid-column: 1 / -1;
+    margin-bottom: 20px;
+    border-top: 4px solid var(--success);
+}
+
+.btn-create {
+    background: var(--success) !important;
+    white-space: nowrap;
+    width: auto;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 8px;
+}
+
+/* --- ALERTAS Y ESTADOS --- */
+.alert {
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.alert-info {
+    background-color: #dbeafe;
+    border-color: #bfdbfe;
+    color: var(--primary);
+}
+
+.estado-usuario {
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 4px solid var(--primary);
+    margin: 15px 0;
+    background: #eff6ff;
+}
+
+.estado-usuario strong {
+    color: var(--primary);
+}
+
+/* --- RESULTADOS --- */
+.result,
+.result-box {
+    margin-top: 15px;
+    padding: 12px;
+    background: #dcfce7;
+    border-radius: 8px;
+    border-left: 4px solid var(--success);
+}
+
+/* --- FORMULARIOS INLINE --- */
+.inline-form {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.inline-form input {
+    flex: 1;
+    min-width: 250px;
+    margin: 0;
+}
+
+/* --- LISTA UL/LI LEGACY (compatibilidad) --- */
+.list-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.list-card li {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
